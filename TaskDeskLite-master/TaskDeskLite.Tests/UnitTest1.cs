@@ -51,6 +51,27 @@ namespace TaskDeskLite.Tests
             // Verifica se a mensagem da exceção é exatamente a esperada
             Assert.Equal("Título contém termo não permitido.", exception.Message);
         }
+        
+        //TESTE DE PRAZO DA DATA DE CADASTRO
+        [Fact(DisplayName = "Prazo da data do cadastro")]
+        public void Create_Definir_CreatedAt_Com_Data_De_Hoje()
+        {
+            // Cria uma instância do serviço responsável por criar tarefas
+            var service = new TaskService();
 
+            // Cria uma nova tarefa usando o serviço
+            var task = service.Create(new TaskItem
+            {
+                // Título da tarefa
+                Title = "Teste",
+
+                // Prioridade da tarefa (nível médio)
+                Priority = TaskPriority.Medium
+            });
+
+            // Verifica se a data de criação da tarefa
+            // é igual à data de hoje (ignorando horas, minutos e segundos)
+            Assert.Equal(DateTime.Today, task.CreatedAt.Date);
+        }
     }
 }
