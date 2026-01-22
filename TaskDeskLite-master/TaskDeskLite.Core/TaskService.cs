@@ -22,15 +22,25 @@ public class TaskService : ITaskService
         // TODO: adicionar na lista
         // TODO: retornar a tarefa criada
 
+        // Executa a validação da tarefa antes de qualquer alteração ou persistência
+        // Garante que as regras de negócio sejam respeitadas
         TaskValidator.ValidateForCreateOrUpdate(task);
 
+        // Gera um novo identificador único para a tarefa
         task.Id = Guid.NewGuid();
+
+        // Define o status inicial da tarefa como "Pending" (pendente)
         task.Status = TaskStatus.Pending;
+
+        // Registra a data e hora de criação da tarefa usando UTC
         task.CreatedAt = DateTime.UtcNow;
 
+        // Adiciona a tarefa à coleção de tarefas (ex: lista em memória ou repositório)
         _tasks.Add(task);
 
+        // Retorna a tarefa recém-criada já com os dados preenchidos
         return task;
+
     }
 
     public TaskItem Update(TaskItem task)
@@ -70,7 +80,7 @@ public class TaskService : ITaskService
         // Se task for null, lança uma exceção indicando que a tarefa não existe
         if (task is null)
             throw new NotFoundException("Tarefa não encontrada.");
-
+        // Segundo regra de negocio tarefa pode ser removida
         _tasks.Remove(task);
     }
 
