@@ -15,13 +15,13 @@ namespace TaskDeskLite.Tests
             // Cria uma tarefa válida em todos os aspectos,
             // exceto pela descrição que é maior que 200 caracteres
             var task = new TaskItem
-            {   
+            {
                 Title = "Tarefa válida",          // Título válido para não interferir no teste
                 Description = DescricaoInvalida,    // Descrição inválida (maior que 200)
                 Priority = TaskPriority.Low       // Prioridade válida
             };
 
-    
+
             // Executa o método de validação e verifica se ele lança
             // uma DomainValidationException
             var exception = Assert.Throws<DomainValidationException>(() =>
@@ -50,6 +50,29 @@ namespace TaskDeskLite.Tests
             );
             // Verifica se a mensagem da exceção é exatamente a esperada
             Assert.Equal("Título contém termo não permitido.", exception.Message);
+        }
+
+        [Fact(DisplayName = "Tarefa concluida nao pode ser editada")]
+        public void TarefaConcluidaNaoPodeSerAlterada()
+        {
+            // Cria uma instância do serviço de tarefas
+            var service = new TaskService();
+            // Cria uma nova tarefa válida
+            var task = new TaskItem
+            {
+
+                Title = "Tarefa para teste",
+                Description = "Descrição da tarefa",
+                Priority = TaskPriority.Medium,
+                Status = Core.TaskStatus.Done
+            };
+          
+            // Verifica se a atualização lança uma BusinessRuleException
+            var exception = Assert.Throws<BusinessRuleException>(() =>
+                service.Update(task)
+            );
+            // Verifica se a mensagem da exceção é exatamente a esperada
+            Assert.Equal("Tarefa concluída não pode ser editada.", exception.Message);
         }
     }
 }
