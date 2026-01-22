@@ -22,7 +22,15 @@ public class TaskService : ITaskService
         // TODO: adicionar na lista
         // TODO: retornar a tarefa criada
 
-        throw new NotImplementedException();
+        TaskValidator.ValidateForCreateOrUpdate(task);
+
+        task.Id = Guid.NewGuid();
+        task.Status = TaskStatus.Pending;
+        task.CreatedAt = DateTime.UtcNow;
+
+        _tasks.Add(task);
+
+        return task;
     }
 
     public TaskItem Update(TaskItem task)
@@ -40,7 +48,18 @@ public class TaskService : ITaskService
     {
         // TODO: se não existir -> NotFoundException
         // TODO: remover
-        throw new NotImplementedException();
+
+
+        // Procura na lista _tasks a primeira tarefa cujo Id seja igual ao id informado
+        // FirstOrDefault retorna a tarefa encontrada ou null se não existir
+        var task = _tasks.FirstOrDefault(t => t.Id == id);
+
+        // Verifica se nenhuma tarefa foi encontrada com esse Id
+        // Se task for null, lança uma exceção indicando que a tarefa não existe
+        if (task is null)
+            throw new NotFoundException("Tarefa não encontrada.");
+
+        _tasks.Remove(task);
     }
 
     public TaskItem MarkAsDone(Guid id)
