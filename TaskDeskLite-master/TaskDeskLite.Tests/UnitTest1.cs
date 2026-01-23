@@ -4,7 +4,7 @@ namespace TaskDeskLite.Tests
 {
     public class UnitTest1
     {
-        // TESTE PARA VERIFICAR SE A DESCRIÇÃO NÃO ULTRAPASSA 200 CARACTERES
+        // TESTE PARA VERIFICAR SE A DESCRIÇÃO NÃO ULTRAPASSA 200 CARACTERES TESTE 1
         [Fact(DisplayName = "Descricao se limita a 200 caracters")]
         public void Descricao200Caracters()
         {
@@ -32,7 +32,7 @@ namespace TaskDeskLite.Tests
             Assert.Equal("Descrição deve ter no máximo 200 caracteres.", exception.Message);
         }
 
-        // TESTE PARA VERIFICAR SE O TÍTULO NÃO CONTÉM PALAVRAS PROIBIDAS
+        // TESTE PARA VERIFICAR SE O TÍTULO NÃO CONTÉM PALAVRAS PROIBIDAS  // TESTE 2
         [Fact(DisplayName = "Palavras Bloqueadas")]
         public void PalavrasBloqueadas()
         {
@@ -52,7 +52,7 @@ namespace TaskDeskLite.Tests
             Assert.Equal("Título contém termo não permitido.", exception.Message);
         }
         
-        //TESTE DE PRAZO DA DATA DE CADASTRO
+        //TESTE DE PRAZO DA DATA DE CADASTRO // TESTE 3
         [Fact(DisplayName = "Prazo da data do cadastro")]
         public void Create_Definir_CreatedAt_Com_Data_De_Hoje()
         {
@@ -72,8 +72,9 @@ namespace TaskDeskLite.Tests
             // Verifica se a data de criação da tarefa
             // é igual à data de hoje (ignorando horas, minutos e segundos)
             Assert.Equal(DateTime.Today, task.CreatedAt.Date);
-        }
 
+        }
+        // TESTE PARA VERIFICAR SE O TÍTULO NÃO É NULO, VAZIO OU APENAS ESPAÇOS QUANDO CRIADO TESTE 4
         /// Testa se o método Create rejeita títulos inválidos (nulo, vazio ou apenas espaços).
         /// Este teste valida a regra: "Título não pode ser só espaços".
         /// <param name="invalidTitle">Título inválido a ser testado (null, "", " ", etc.)</param>
@@ -103,6 +104,7 @@ namespace TaskDeskLite.Tests
             Assert.Equal("Título é obrigatório.", exception.Message);
         }
 
+        // TESTE PARA VERIFICAR SE O TÍTULO NÃO É NULO, VAZIO OU APENAS ESPAÇOS AO ATUALIZAR TESTE 5
         /// <summary>
         /// Testa se o método Update rejeita títulos inválidos (nulo, vazio ou apenas espaços).
         /// Este teste valida a mesma regra do Create: "Título não pode ser só espaços".
@@ -149,87 +151,53 @@ namespace TaskDeskLite.Tests
             Assert.Equal("Título é obrigatório.", exception.Message);
         }
 
-        // TESTE PARA VERIFICAR SE UMA TAREFA CONCLUÍDA PODE SER EDITADA TESTE 3
+        // TESTE PARA VERIFICAR SE UMA TAREFA CONCLUÍDA PODE SER EDITADA TESTE 6
 
         [Fact(DisplayName = "Tarefa concluida nao pode ser editada")]
 
         public void TarefaConcluidaNaoPodeSerAlterada()
 
         {
-
             var service = new TaskService();
 
             // Cria a tarefa
-
             var task = new TaskItem
-
             {
-
                 Title = "Tarefa para teste",
-
                 Description = "Descrição da tarefa",
-
                 Priority = TaskPriority.Medium
-
             };
 
-            // Salva a nova tarefa
-
+            // Salva a nova tarefa no sistema
             var tarefaNova = service.Create(task);
 
-            // Conclui a tarefa 
-
-            var concludeTask = new TaskItem
-
-            {
-
-                Id = tarefaNova.Id,
-
-                Title = "outroTitulo",
-
-                Description = "NovaDescricao",
-
-                Priority = TaskPriority.High,
-
-                Status = Core.TaskStatus.Done
-
-            };
-
             // Atualiza o status para concluído
-
             service.MarkAsDone(tarefaNova.Id);
 
             //  Tenta editar depois de concluída
-
             var taskToUpdate = new TaskItem
 
             {
-
                 Id = tarefaNova.Id,
-
                 Title = "Título alterado",
-
                 Description = "Descrição alterada",
-
                 Priority = TaskPriority.High
-
             };
 
             // Verifica se ao tentar atualizar uma tarefa concluída lança a exceção esperada
-
             var exception = Assert.Throws<BusinessRuleException>(() =>
-
-                service.Update(taskToUpdate)
+            service.Update(taskToUpdate)
 
             );
 
             Assert.Equal("Tarefa concluída não pode ser editada.", exception.Message);
-
         }
 
-            // Método auxiliar para criar uma nova instância do serviço
-            // Assim cada teste começa com a lista de tarefas vazia
-            private TaskService CreateService() => new();
+        // TESTE PARA VERIFICAR SE O SISTEMA ACEITA TITULO COM 2 CARACTERES (LIMITE MINIMO) ESTE 7
+
+        // Método auxiliar para criar uma nova instância do serviço
+        // Assim cada teste começa com a lista de tarefas vazia
+        private TaskService CreateService() => new();
 
             [Fact]
             public void Create_TitleWith3Characters_ShouldCreateTask()
@@ -246,7 +214,9 @@ namespace TaskDeskLite.Tests
                
             }
 
-            [Fact]
+        // TESTE PARA VERIFICAR SE O SISTEMA ACEITA TÍTULO COM 40 CARACTERES (LIMITE MÁXIMO) TESTE 8
+
+        [Fact]
             // Teste para verificar se o sistema aceita título com 40 caracteres (limite máximo)
             public void Criar_TituloCom40Caracteres_DeveCriarTarefa()
             {
