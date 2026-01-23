@@ -4,8 +4,10 @@ using TaskDeskLite.Core;
 
 namespace TaskDeskLite;
 
+
 public class Program
 {
+    
     static void Main()
     {
         ITaskService service = new TaskService();
@@ -99,8 +101,10 @@ public class Program
 
     static void CreateTask(ITaskService service)
     {
+
         Console.Clear();
         ConsoleUi.Title("Cadastrar tarefa");
+
 
         var title = ConsoleUi.ReadString("Título: ");
         var desc = ConsoleUi.ReadOptionalString("Descrição (opcional): ");

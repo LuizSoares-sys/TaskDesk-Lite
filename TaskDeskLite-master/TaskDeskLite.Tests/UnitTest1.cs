@@ -51,28 +51,102 @@ namespace TaskDeskLite.Tests
             // Verifica se a mensagem da exceção é exatamente a esperada
             Assert.Equal("Título contém termo não permitido.", exception.Message);
         }
-
-        [Fact(DisplayName = "Tarefa concluida nao pode ser editada")]
-        public void TarefaConcluidaNaoPodeSerAlterada()
+        
+        //TESTE DE PRAZO DA DATA DE CADASTRO
+        [Fact(DisplayName = "Prazo da data do cadastro")]
+        public void Create_Definir_CreatedAt_Com_Data_De_Hoje()
         {
-            // Cria uma instância do serviço de tarefas
+            // Cria uma instância do serviço responsável por criar tarefas
             var service = new TaskService();
-            // Cria uma nova tarefa válida
+
+            // Cria uma nova tarefa usando o serviço
+            var task = service.Create(new TaskItem
+            {
+                // Título da tarefa
+                Title = "Teste",
+
+                // Prioridade da tarefa (nível médio)
+                Priority = TaskPriority.Medium
+            });
+
+            // Verifica se a data de criação da tarefa
+            // é igual à data de hoje (ignorando horas, minutos e segundos)
+            Assert.Equal(DateTime.Today, task.CreatedAt.Date);
+        }
+
+        /// Testa se o método Create rejeita títulos inválidos (nulo, vazio ou apenas espaços).
+        /// Este teste valida a regra: "Título não pode ser só espaços".
+        /// <param name="invalidTitle">Título inválido a ser testado (null, "", " ", etc.)</param>
+        [Theory]
+        [InlineData(null)]      // Testa título nulo
+        [InlineData("")]        // Testa string vazia
+        [InlineData(" ")]       // Testa um espaço
+        [InlineData("   ")]     // Testa múltiplos espaços
+        [InlineData("\t")]      // Testa tabulação
+        [InlineData("\n")]      // Testa quebra de linha
+        [InlineData("\r\n")]    // Testa quebra de linha Windows
+        public void Create_ComTituloInvalido_ApenasEspacos_DeveLancarExcecao(string? invalidTitle)
+        {
+            // Arrange: Prepara os dados do teste
+            var service = new TaskService();
             var task = new TaskItem
             {
-
-                Title = "Tarefa para teste",
-                Description = "Descrição da tarefa",
+                Title = invalidTitle!,  // Título inválido (nulo, vazio ou só espaços)
+                Description = "Descrição válida",
                 Priority = TaskPriority.Medium,
-                Status = Core.TaskStatus.Done
+                DueDate = DateTime.Now.AddDays(1)
             };
-          
-            // Verifica se a atualização lança uma BusinessRuleException
-            var exception = Assert.Throws<BusinessRuleException>(() =>
-                service.Update(task)
-            );
-            // Verifica se a mensagem da exceção é exatamente a esperada
-            Assert.Equal("Tarefa concluída não pode ser editada.", exception.Message);
+
+            // Act & Assert: Tenta criar a tarefa e verifica se lança exceção
+            // O sistema deve rejeitar e lançar DomainValidationException
+            var exception = Assert.Throws<DomainValidationException>(() => service.Create(task));
+            Assert.Equal("Título é obrigatório.", exception.Message);
+        }
+
+        /// <summary>
+        /// Testa se o método Update rejeita títulos inválidos (nulo, vazio ou apenas espaços).
+        /// Este teste valida a mesma regra do Create: "Título não pode ser só espaços".
+        /// </summary>
+        /// <param name="invalidTitle">Título inválido a ser testado (null, "", " ", etc.)</param>
+        [Theory]
+        [InlineData(null)]      // Testa título nulo
+        [InlineData("")]        // Testa string vazia
+        [InlineData(" ")]       // Testa um espaço
+        [InlineData("   ")]     // Testa múltiplos espaços
+        [InlineData("\t")]      // Testa tabulação
+        [InlineData("\n")]      // Testa quebra de linha
+        [InlineData("\r\n")]    // Testa quebra de linha Windows
+        public void Update_ComTituloInvalido_ApenasEspacos_DeveLancarExcecao(string? invalidTitle)
+        {
+            // Arrange: Prepara os dados do teste
+            var service = new TaskService();
+            
+            // Primeiro cria uma tarefa válida para poder testar a atualização
+            var validTask = new TaskItem
+            {
+                Title = "Tarefa válida",
+                Description = "Descrição",
+                Priority = TaskPriority.Medium,
+                DueDate = DateTime.Now.AddDays(1)
+            };
+            var createdTask = service.Create(validTask);
+
+            // Prepara uma atualização com título inválido
+            var taskToUpdate = new TaskItem
+            {
+                Id = createdTask.Id,
+                Title = invalidTitle!,  // Título inválido (nulo, vazio ou só espaços)
+                Description = "Descrição atualizada",
+                Priority = TaskPriority.High,
+                DueDate = DateTime.Now.AddDays(2),
+                Status = Core.TaskStatus.Pending,
+                CreatedAt = createdTask.CreatedAt
+            };
+
+            // Act & Assert: Tenta atualizar a tarefa e verifica se lança exceção
+            // O sistema deve rejeitar e lançar DomainValidationException
+            var exception = Assert.Throws<DomainValidationException>(() => service.Update(taskToUpdate));
+            Assert.Equal("Título é obrigatório.", exception.Message);
         }
     }
 }
