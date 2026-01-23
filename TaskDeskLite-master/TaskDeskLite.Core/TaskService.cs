@@ -83,7 +83,7 @@ public class TaskService : ITaskService
         // Segundo regra de negocio tarefa pode ser removida
         _tasks.Remove(task);
     }
-
+    // Marca a tarefa como concluída
     public TaskItem MarkAsDone(Guid id)
     {
         var task = GetById(id); // Lança NotFoundException se não existir

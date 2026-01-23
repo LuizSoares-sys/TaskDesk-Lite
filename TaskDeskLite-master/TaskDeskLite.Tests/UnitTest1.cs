@@ -148,5 +148,124 @@ namespace TaskDeskLite.Tests
             var exception = Assert.Throws<DomainValidationException>(() => service.Update(taskToUpdate));
             Assert.Equal("Título é obrigatório.", exception.Message);
         }
+
+        // TESTE PARA VERIFICAR SE UMA TAREFA CONCLUÍDA PODE SER EDITADA TESTE 3
+
+        [Fact(DisplayName = "Tarefa concluida nao pode ser editada")]
+
+        public void TarefaConcluidaNaoPodeSerAlterada()
+
+        {
+
+            var service = new TaskService();
+
+            // Cria a tarefa
+
+            var task = new TaskItem
+
+            {
+
+                Title = "Tarefa para teste",
+
+                Description = "Descrição da tarefa",
+
+                Priority = TaskPriority.Medium
+
+            };
+
+            // Salva a nova tarefa
+
+            var tarefaNova = service.Create(task);
+
+            // Conclui a tarefa 
+
+            var concludeTask = new TaskItem
+
+            {
+
+                Id = tarefaNova.Id,
+
+                Title = "outroTitulo",
+
+                Description = "NovaDescricao",
+
+                Priority = TaskPriority.High,
+
+                Status = Core.TaskStatus.Done
+
+            };
+
+            // Atualiza o status para concluído
+
+            service.MarkAsDone(tarefaNova.Id);
+
+            //  Tenta editar depois de concluída
+
+            var taskToUpdate = new TaskItem
+
+            {
+
+                Id = tarefaNova.Id,
+
+                Title = "Título alterado",
+
+                Description = "Descrição alterada",
+
+                Priority = TaskPriority.High
+
+            };
+
+            // Verifica se ao tentar atualizar uma tarefa concluída lança a exceção esperada
+
+            var exception = Assert.Throws<BusinessRuleException>(() =>
+
+                service.Update(taskToUpdate)
+
+            );
+
+            Assert.Equal("Tarefa concluída não pode ser editada.", exception.Message);
+
+        }
+
+            // Método auxiliar para criar uma nova instância do serviço
+            // Assim cada teste começa com a lista de tarefas vazia
+            private TaskService CreateService() => new();
+
+            [Fact]
+            public void Create_TitleWith3Characters_ShouldCreateTask()
+            {
+                var service = CreateService();
+                var task = new TaskItem
+                {
+                    Title = "Abc" // 3 caracteres
+                };
+
+                var result = service.Create(task);
+
+                Assert.NotEqual(Guid.Empty, result.Id);
+               
+            }
+
+            [Fact]
+            // Teste para verificar se o sistema aceita título com 40 caracteres (limite máximo)
+            public void Criar_TituloCom40Caracteres_DeveCriarTarefa()
+            {
+                var service = CreateService();
+
+                // Cria uma tarefa com título no limite máximo permitido
+                var task = new TaskItem
+                {
+                    Title = new string('A', 40) // 40 caracteres
+                };
+
+                // Executa a criação da tarefa
+                var result = service.Create(task);
+
+                // Verifica se o ID foi gerado corretamente
+                Assert.NotEqual(Guid.Empty, result.Id);
+
+             
+            }
+        }
     }
-}
+
